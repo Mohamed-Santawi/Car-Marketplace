@@ -56,7 +56,7 @@ const Header = () => {
             {/* Upgrade Ads Button */}
             <motion.button
               onClick={() => navigate("/paid-advertisements")}
-              className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+              className="bg-yellow-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors text-sm"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -66,7 +66,7 @@ const Header = () => {
             {/* Add Advertisement Button */}
             <motion.button
               onClick={() => navigate("/add-advertisement")}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+              className="bg-green-600 text-white cursor-pointer px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -76,7 +76,7 @@ const Header = () => {
             {/* Login Button */}
             <motion.button
               onClick={() => navigate("/login")}
-              className="bg-blue-600 text-white px-4 mr-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+              className="bg-blue-600 text-white cursor-pointer px-4 mr-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
