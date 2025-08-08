@@ -8,6 +8,7 @@ import SellCar from "./pages/SellCar";
 import Financing from "./pages/Financing";
 import AddAdvertisement from "./pages/AddAdvertisement";
 import Login from "./pages/Login";
+import PaidAdvertisements from "./pages/PaidAdvertisements";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/financing" element={<Financing />} />
           <Route path="/add-advertisement" element={<AddAdvertisement />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/paid-advertisements" element={<PaidAdvertisements />} />
         </Routes>
       </MainLayout>
     </Router>

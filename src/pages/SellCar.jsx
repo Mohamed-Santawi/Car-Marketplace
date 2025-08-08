@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const SellCar = () => {
   const [formData, setFormData] = useState({
@@ -126,6 +127,31 @@ const SellCar = () => {
           </div>
         </motion.div>
 
+        {/* Promotion Banner */}
+        <motion.div
+          className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-6 mb-8"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                اجعل إعلانك يظهر بشكل مميز! 🚀
+              </h3>
+              <p className="text-gray-600">
+                احصل على مزيد من المشاهدات والمبيعات من خلال ترقية إعلانك
+              </p>
+            </div>
+            <Link
+              to="/paid-advertisements"
+              className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:from-yellow-500 hover:to-orange-600 transition-all duration-300"
+            >
+              ترقية الإعلان
+            </Link>
+          </div>
+        </motion.div>
+
         {/* Form */}
         <motion.form
           onSubmit={handleSubmit}
@@ -244,7 +270,6 @@ const SellCar = () => {
                     required
                   >
                     <option value="مستعملة">مستعملة</option>
-                    <option value="جديدة">جديدة</option>
                   </select>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import Hero from "../components/Hero";
 import BrandFilter from "../components/BrandFilter";
 import Features from "../components/Features";
 import CarsGrid from "../components/CarsGrid";
+import PromotedAds from "../components/PromotedAds";
 import { getCarsWithImages, getCarBrands } from "../services/carService";
 
 const Home = () => {
@@ -11,6 +12,43 @@ const Home = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [brands, setBrands] = useState([]);
+
+  // Sample promoted ads data
+  const promotedAds = [
+    {
+      id: 1,
+      title: "تويوتا كامري 2022 - حالة ممتازة",
+      price: 85000,
+      year: 2022,
+      mileage: 45000,
+      location: "الرياض",
+      date: "منذ يومين",
+      promotionLevel: "vip",
+      image: null,
+    },
+    {
+      id: 2,
+      title: "هيونداي النترا 2021 - فحص كامل",
+      price: 65000,
+      year: 2021,
+      mileage: 32000,
+      location: "جدة",
+      date: "منذ 3 أيام",
+      promotionLevel: "premium",
+      image: null,
+    },
+    {
+      id: 3,
+      title: "نيسان صني 2020 - اقتصادية",
+      price: 45000,
+      year: 2020,
+      mileage: 28000,
+      location: "الدمام",
+      date: "منذ أسبوع",
+      promotionLevel: "basic",
+      image: null,
+    },
+  ];
 
   useEffect(() => {
     const loadCars = async () => {
@@ -21,7 +59,7 @@ const Home = () => {
         setCars(carsData);
         setBrands(brandsData);
       } catch (error) {
-        console.error('Error loading cars:', error);
+        console.error("Error loading cars:", error);
       } finally {
         setLoading(false);
       }
@@ -47,6 +85,12 @@ const Home = () => {
         onBrandSelect={setSelectedBrand}
         brands={brands}
       />
+
+      {/* Promoted Ads Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <PromotedAds ads={promotedAds} title="إعلانات مميزة" />
+      </div>
+
       <Features />
       {loading ? (
         <motion.div
