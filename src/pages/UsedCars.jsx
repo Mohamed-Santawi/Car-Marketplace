@@ -22,7 +22,7 @@ const UsedCars = () => {
         setCars(carsData);
         setFilteredCars(carsData);
       } catch (error) {
-        console.error('Error loading cars:', error);
+        console.error("Error loading cars:", error);
       } finally {
         setLoading(false);
       }
@@ -39,10 +39,10 @@ const UsedCars = () => {
     setFilters(newFilters);
 
     try {
-      const filtered = await searchCars('', newFilters);
+      const filtered = await searchCars("", newFilters);
       setFilteredCars(filtered);
     } catch (error) {
-      console.error('Error filtering cars:', error);
+      console.error("Error filtering cars:", error);
     }
   };
 
@@ -77,7 +77,7 @@ const UsedCars = () => {
               <label className="block text-sm font-medium mb-2">الماركة</label>
               <select
                 value={filters.brand}
-                onChange={(e) => handleFilterChange('brand', e.target.value)}
+                onChange={(e) => handleFilterChange("brand", e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md"
               >
                 <option value="جميع الماركات">جميع الماركات</option>
@@ -86,15 +86,69 @@ const UsedCars = () => {
                 <option value="نيسان">نيسان</option>
                 <option value="فيات">فيات</option>
                 <option value="بي ام دبليو">بي ام دبليو</option>
+                <option value="مرسيدس">مرسيدس</option>
+                <option value="فورد">فورد</option>
+                <option value="مازدا">مازدا</option>
+                <option value="لكزس">لكزس</option>
+                <option value="شفروليه">شفروليه</option>
+                <option value="ام جي">ام جي</option>
+                <option value="رينو">رينو</option>
+                <option value="سوزوكي">سوزوكي</option>
+                <option value="شانجان">شانجان</option>
+                <option value="كيا">كيا</option>
+                <option value="أودي">أودي</option>
+                <option value="فولكس فاجن">فولكس فاجن</option>
+                <option value="سكودا">سكودا</option>
+                <option value="سيات">سيات</option>
+                <option value="بيجو">بيجو</option>
+                <option value="سيتروين">سيتروين</option>
+                <option value="أوبل">أوبل</option>
+                <option value="فولفو">فولفو</option>
+                <option value="ساب">ساب</option>
+                <option value="جاكوار">جاكوار</option>
+                <option value="لاند روفر">لاند روفر</option>
+                <option value="ميني">ميني</option>
+                <option value="رولز رويس">رولز رويس</option>
+                <option value="بنتلي">بنتلي</option>
+                <option value="أستون مارتن">أستون مارتن</option>
+                <option value="مكلارين">مكلارين</option>
+                <option value="لوتس">لوتس</option>
+                <option value="ألفا روميو">ألفا روميو</option>
+                <option value="مازيراتي">مازيراتي</option>
+                <option value="لامبورغيني">لامبورغيني</option>
+                <option value="فيراري">فيراري</option>
+                <option value="بورش">بورش</option>
+                <option value="كاديلاك">كاديلاك</option>
+                <option value="لينكولن">لينكولن</option>
+                <option value="بونتياك">بونتياك</option>
+                <option value="ساترن">ساترن</option>
+                <option value="هوندا">هوندا</option>
+                <option value="ميتسوبيشي">ميتسوبيشي</option>
+                <option value="سوبارو">سوبارو</option>
+                <option value="إيسوزو">إيسوزو</option>
+                <option value="دايهاتسو">دايهاتسو</option>
+                <option value="تاتا">تاتا</option>
+                <option value="ماهيندرا">ماهيندرا</option>
+                <option value="ماروتي">ماروتي</option>
+                <option value="بروتون">بروتون</option>
+                <option value="بيرودوا">بيرودوا</option>
+                <option value="جيلي">جيلي</option>
+                <option value="بي واي دي">بي واي دي</option>
+                <option value="نيسو">نيسو</option>
+                <option value="أخرى">أخرى</option>
               </select>
             </div>
 
             {/* Price Range Filter */}
             <div>
-              <label className="block text-sm font-medium mb-2">نطاق السعر</label>
+              <label className="block text-sm font-medium mb-2">
+                نطاق السعر
+              </label>
               <select
                 value={filters.priceRange}
-                onChange={(e) => handleFilterChange('priceRange', e.target.value)}
+                onChange={(e) =>
+                  handleFilterChange("priceRange", e.target.value)
+                }
                 className="w-full p-2 border border-gray-300 rounded-md"
               >
                 <option value="all">جميع الأسعار</option>
@@ -106,10 +160,12 @@ const UsedCars = () => {
 
             {/* Year Filter */}
             <div>
-              <label className="block text-sm font-medium mb-2">سنة الصنع</label>
+              <label className="block text-sm font-medium mb-2">
+                سنة الصنع
+              </label>
               <select
                 value={filters.year}
-                onChange={(e) => handleFilterChange('year', e.target.value)}
+                onChange={(e) => handleFilterChange("year", e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md"
               >
                 <option value="all">جميع السنوات</option>
@@ -123,10 +179,12 @@ const UsedCars = () => {
 
             {/* Mileage Filter */}
             <div>
-              <label className="block text-sm font-medium mb-2">المسافة المقطوعة</label>
+              <label className="block text-sm font-medium mb-2">
+                المسافة المقطوعة
+              </label>
               <select
                 value={filters.mileage}
-                onChange={(e) => handleFilterChange('mileage', e.target.value)}
+                onChange={(e) => handleFilterChange("mileage", e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md"
               >
                 <option value="all">جميع المسافات</option>

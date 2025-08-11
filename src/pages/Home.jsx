@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Hero from "../components/Hero";
 import BrandFilter from "../components/BrandFilter";
-import Features from "../components/Features";
+// import Features from "../components/Features";
 import CarsGrid from "../components/CarsGrid";
 import PromotedAds from "../components/PromotedAds";
 import { getCarsWithImages, getCarBrands } from "../services/carService";
@@ -91,7 +91,7 @@ const Home = () => {
         <PromotedAds ads={promotedAds} title="إعلانات مميزة" />
       </div>
 
-      <Features />
+      {/* <Features /> */}
       {loading ? (
         <motion.div
           className="py-12 text-center"
