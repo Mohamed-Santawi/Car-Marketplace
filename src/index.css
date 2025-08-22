@@ -10,6 +10,12 @@ body {
     sans-serif;
   direction: rtl;
   text-align: right;
+  scroll-behavior: smooth;
+}
+
+/* Ensure page starts at top */
+html {
+  scroll-behavior: smooth;
 }
 
 /* RTL specific adjustments */
@@ -48,3 +54,10 @@ textarea:focus {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
+
+/* Ensure pages start at top */
+#root {
+  min-height: 100vh;
+}
+
+

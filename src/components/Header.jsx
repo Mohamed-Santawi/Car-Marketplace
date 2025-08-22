@@ -1,13 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../services/firebase";
+import { isAdmin } from "../services/authService";
+import logo from "../assets/img/LogoFinal2.png";
 
 const Header = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(!!user);
+      setIsAdminUser(!!user && isAdmin(user));
+    });
+    return () => unsubscribe();
+  }, []);
 
   const navItems = [
     { name: "السيارات المستعملة", path: "/used-cars" },
+    { name: "البحث عن السيارات", path: "/search-cars" },
     { name: "بيعنا سيارتك", path: "/sell-car" },
   ];
 
@@ -22,10 +37,11 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <motion.div
-            className="flex items-center"
+            className="flex items-center gap-2"
             whileHover={{ scale: 1.05 }}
           >
-            <Link to="/">
+            <Link to="/" className="flex items-center">
+              <img src={logo} alt="Logo" className="w-20 h-20 object-cover" />
               <h1 className="text-xl sm:text-2xl font-bold text-blue-600">
                 سيارات
               </h1>
@@ -49,6 +65,20 @@ const Header = () => {
                 </Link>
               </motion.div>
             ))}
+            {isAdminUser && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: navItems.length * 0.1 }}
+              >
+                <Link
+                  to="/admin/dashboard"
+                  className="text-gray-700 hover:text-blue-600 transition-colors font-semibold"
+                >
+                  لوحة التحكم
+                </Link>
+              </motion.div>
+            )}
           </nav>
 
           {/* Desktop Action Buttons */}
@@ -65,7 +95,7 @@ const Header = () => {
 
             {/* Add Advertisement Button */}
             <motion.button
-              onClick={() => navigate("/add-advertisement")}
+              onClick={() => navigate("/sell-car")}
               className="bg-green-600 text-white cursor-pointer px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -73,15 +103,26 @@ const Header = () => {
               أضف إعلانك
             </motion.button>
 
-            {/* Login Button */}
-            <motion.button
-              onClick={() => navigate("/login")}
-              className="bg-blue-600 text-white cursor-pointer px-4 mr-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              تسجيل الدخول
-            </motion.button>
+            {/* Auth Button */}
+            {!isLoggedIn ? (
+              <motion.button
+                onClick={() => navigate("/login")}
+                className="bg-blue-600 text-white cursor-pointer px-4 mr-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                تسجيل الدخول
+              </motion.button>
+            ) : (
+              <motion.button
+                onClick={() => auth.signOut()}
+                className="bg-gray-700 text-white cursor-pointer px-4 mr-3 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                تسجيل الخروج
+              </motion.button>
+            )}
           </div>
 
           {/* Tablet Action Buttons (Medium screens) */}
@@ -118,42 +159,45 @@ const Header = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? (
-              // X icon when menu is open
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            ) : (
-              // Hamburger icon when menu is closed
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            )}
-          </button>
+          <div className="lg:hidden flex items-center">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-700 hover:text-blue-600 focus:outline-none"
+              aria-label="Toggle Menu"
+            >
+              {isMenuOpen ? (
+                // X icon when menu is open
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                // Hamburger icon when menu is closed
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -177,6 +221,16 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
+
+              {isAdminUser && (
+                <Link
+                  to="/admin/dashboard"
+                  className="block px-3 py-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md text-base font-semibold"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  لوحة التحكم
+                </Link>
+              )}
 
               {/* Divider */}
               <div className="border-t border-gray-200 my-3"></div>

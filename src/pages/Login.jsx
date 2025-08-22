@@ -1,6 +1,16 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../services/firebase";
+import { isAdmin } from "../services/authService";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,15 +33,63 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    try {
+      await setPersistence(
+        auth,
+        formData.rememberMe
+          ? browserLocalPersistence
+          : browserSessionPersistence
+      );
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      const user = userCredential.user;
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Check if user is admin
+      if (isAdmin(user)) {
+        alert("تم تسجيل دخول المدير بنجاح! مرحباً بك في لوحة التحكم");
+        navigate("/admin/dashboard");
+      } else {
+        alert("تم تسجيل الدخول بنجاح!");
+        navigate("/");
+      }
+    } catch (err) {
+      alert("فشل تسجيل الدخول: " + (err?.message || ""));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    setIsLoading(false);
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await setPersistence(
+        auth,
+        formData.rememberMe
+          ? browserLocalPersistence
+          : browserSessionPersistence
+      );
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
 
-    // For demo purposes, always succeed
-    alert("تم تسجيل الدخول بنجاح!");
-    navigate("/");
+      // Check if user is admin
+      if (isAdmin(user)) {
+        alert(
+          "تم تسجيل دخول المدير عبر Google بنجاح! مرحباً بك في لوحة التحكم"
+        );
+        navigate("/admin/dashboard");
+      } else {
+        alert("تم تسجيل الدخول عبر Google بنجاح!");
+        navigate("/");
+      }
+    } catch (err) {
+      alert("فشل تسجيل الدخول عبر Google: " + (err?.message || ""));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -62,6 +120,9 @@ const Login = () => {
               >
                 إنشاء حساب جديد
               </Link>
+            </p>
+            <p className="mt-2 text-xs text-gray-500">
+              يمكن للمديرين تسجيل الدخول من هنا للوصول إلى لوحة التحكم
             </p>
           </div>
         </motion.div>
@@ -117,7 +178,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute left-3 cursor-pointer top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
                     {showPassword ? "👁️" : "👁️‍🗨️"}
                   </button>
@@ -155,7 +216,7 @@ const Login = () => {
               <motion.button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full flex cursor-pointer justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -187,54 +248,41 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
+            <div className="mt-6 grid grid-cols-1">
               <motion.button
                 type="button"
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                onClick={handleGoogleSignIn}
+                className="w-full cursor-pointer inline-flex items-center justify-center py-2.5 px-4 rounded-md shadow-sm text-sm font-medium text-white"
+                style={{
+                  background:
+                    "linear-gradient(90deg, #4285F4 0%, #34A853 33%, #FBBC05 66%, #EA4335 100%)",
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <span className="sr-only">تسجيل الدخول بـ Google</span>
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                <span className="mr-2">Google</span>
-              </motion.button>
-
-              <motion.button
-                type="button"
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className="sr-only">تسجيل الدخول بـ Facebook</span>
                 <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+                  className="w-5 h-5 bg-white rounded-sm p-0.5 ml-3"
+                  viewBox="0 0 48 48"
                 >
                   <path
-                    fillRule="evenodd"
-                    d="M20 10C20 4.477 15.523 0 10 0S0 4.477 0 10c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V10h2.54V7.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V10h2.773l-.443 2.89h-2.33v6.988C16.343 19.128 20 14.991 20 10z"
-                    clipRule="evenodd"
+                    fill="#FFC107"
+                    d="M43.611,20.083H42V20H24v8h11.303c-1.648,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12 s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24 s8.955,20,20,20s20-8.955,20-20C44,22.91,43.039,21.392,43.611,20.083z"
+                  />
+                  <path
+                    fill="#FF3D00"
+                    d="M6.306,14.691l6.571,4.819C14.655,16.043,18.961,13,24,13c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657 C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"
+                  />
+                  <path
+                    fill="#4CAF50"
+                    d="M24,44c5.166,0,9.86-1.977,13.409-5.197l-6.191-5.238C29.211,35.091,26.715,36,24,36 c-5.202,0-9.619-3.317-11.278-7.961l-6.49,5.002C9.62,39.556,16.302,44,24,44z"
+                  />
+                  <path
+                    fill="#1976D2"
+                    d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.092,5.571 c0.001-0.001,0.002-0.001,0.003-0.002l6.191,5.238C35.145,40.153,44,34,44,24C44,22.91,43.039,21.392,43.611,20.083z"
                   />
                 </svg>
-                <span className="mr-2">Facebook</span>
+                <span>تسجيل الدخول عبر Google</span>
               </motion.button>
             </div>
           </motion.div>

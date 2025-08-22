@@ -30,7 +30,7 @@ const Footer = () => {
           <p className="text-gray-300 mb-4">
             من السبت حتى الخميس من الساعة 9 صباحاً حتى 11 مساءً
           </p>
-          <p className="text-blue-400 font-semibold">920005379</p>
+          <p className="text-emerald-400 font-semibold">920005379</p>
         </div>
       ),
     },
@@ -39,22 +39,22 @@ const Footer = () => {
       content: (
         <div>
           <p className="text-gray-300 mb-4">لتصلك آخر عروض السيارات</p>
-          <div className="flex space-x-4 space-x-reverse">
+          <div className="flex space-x-3 space-x-reverse">
             <a
               href="#"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="px-3 py-1.5 rounded-full border border-gray-600 text-gray-300 hover:border-emerald-500 hover:text-white transition-colors"
             >
               فيسبوك
             </a>
             <a
               href="#"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="px-3 py-1.5 rounded-full border border-gray-600 text-gray-300 hover:border-emerald-500 hover:text-white transition-colors"
             >
               تويتر
             </a>
             <a
               href="#"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="px-3 py-1.5 rounded-full border border-gray-600 text-gray-300 hover:border-emerald-500 hover:text-white transition-colors"
             >
               انستغرام
             </a>
@@ -66,13 +66,26 @@ const Footer = () => {
 
   return (
     <motion.footer
-      className="bg-gray-800 text-white py-12"
+      className="relative overflow-hidden text-white py-14"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-black" />
+      <div className="absolute -top-24 -left-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl" />
+      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top brand area */}
+        <div className="mb-10">
+          <h3 className="text-2xl font-bold tracking-tight">سيارات</h3>
+          <p className="text-gray-400 mt-2 max-w-2xl">
+            منصة موثوقة لبيع وشراء السيارات مع تجربة سلسة وخيارات متنوعة تناسب
+            احتياجك.
+          </p>
+        </div>
+
         <div className="grid md:grid-cols-4 gap-8">
           {footerSections.map((section, index) => (
             <motion.div
@@ -82,14 +95,16 @@ const Footer = () => {
               transition={{ delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <h4 className="text-lg font-semibold mb-4">{section.title}</h4>
+              <h4 className="text-lg font-semibold mb-4 text-white">
+                {section.title}
+              </h4>
               {section.links ? (
                 <ul className="space-y-2">
                   {section.links.map((link) => (
                     <li key={link.name}>
                       <Link
                         to={link.path}
-                        className="hover:text-blue-400 transition-colors"
+                        className="text-gray-300 hover:text-emerald-400 transition-colors"
                       >
                         {link.name}
                       </Link>
@@ -104,7 +119,7 @@ const Footer = () => {
         </div>
 
         <motion.div
-          className="border-t border-gray-700 mt-8 pt-8 text-center"
+          className="border-t border-gray-800 mt-10 pt-8 flex flex-col md:flex-row items-center justify-between gap-3"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
@@ -113,6 +128,7 @@ const Footer = () => {
           <p className="text-gray-400">
             جميع الحقوق محفوظة لشركة موقع سيارات المحدودة ©2025
           </p>
+          <div className="text-xs text-gray-500">مصمم بأناقة واحترافية</div>
         </motion.div>
       </div>
     </motion.footer>

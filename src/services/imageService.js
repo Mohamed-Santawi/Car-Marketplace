@@ -2,7 +2,8 @@
 import { fetchRealSaudiCarImages } from "./saudiImageAPI.js";
 
 // Real Saudi car brands and models based on Syarah.com data
-const saudiCarBrands = {
+export const saudiCarBrands = {
+  // Existing brands with their models
   هيونداي: {
     "النترا فلييت": [
       "https://cdn.syarah.com/photos-thumbs/hero-v2/0x960/syarah/online/hero-v2/1754302041-392.webp",
@@ -142,6 +143,293 @@ const saudiCarBrands = {
     تايغون: [
       "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=400&h=300&fit=crop&sat=-20",
       "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+
+  // Additional brands from the HTML select element
+  اكورا: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  "الفا روميو": {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  "ايه ام جنرال": {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  "استون مارتن": {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  بنتلي: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  بوغاتي: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  بويك: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  كاديلاك: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  شيفروليه: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  كرايسلر: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  دايو: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  دودج: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  ايجل: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  فيراري: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  فيسكر: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  فورد: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  جينيسيس: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  جيو: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  "جي ام سي": {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  همر: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  اينوس: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  انفينيتي: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  ايسوزو: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  جاكوار: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  جيب: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  كارما: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  لامبورغيني: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  "لاند روفر": {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  لنكولن: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  لوتس: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  لوسيد: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  مازيراتي: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  مايباخ: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  مازدا: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  مكلارين: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  ميركوري: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  ميني: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  ميتسوبيشي: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  اولدزموبيل: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  بانوز: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  بلايموث: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  بولستار: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  بونتياك: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  بورشه: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  رام: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  ريفيان: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  "رولز رويس": {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  ساب: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  ساترن: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  ساين: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  سمارت: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  سبايكر: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  سوبارو: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  سوزوكي: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  تسلا: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  فينفاست: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
+    ],
+  },
+  فولفو: {
+    "موديل أساسي": [
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop&sat=-20",
     ],
   },
 };
@@ -304,8 +592,8 @@ const saudiCarData = [
 
 // Fetch real Saudi car images from Syarah.com and other sources
 export const fetchSaudiCarImages = async (brand, model) => {
-  return await fetchRealSaudiCarImages(brand, model)
-}
+  return await fetchRealSaudiCarImages(brand, model);
+};
 
 // Fetch from Syarah.com CDN
 const fetchFromSyarahCDN = async (brand, model) => {
