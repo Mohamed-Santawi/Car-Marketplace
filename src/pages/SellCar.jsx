@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SellPreviewCard from "../components/SellPreviewCard";
-import {
-  createCarAdvertisement,
-  getCarBrands,
-  testFirestoreConnection,
-} from "../services/carService";
+import { createCarAdvertisement, getCarBrands } from "../services/carService";
 import { motion } from "framer-motion";
+import { auth } from "../services/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 // LocalStorage key for saving form data
 const SELL_CAR_FORM_KEY = "sellCarFormData";
@@ -69,6 +67,7 @@ const SellCar = () => {
         mileage: "",
         condition: "مستعملة",
         lowMileage: false,
+        negotiable: true, // Add negotiable field with default true
         description: "",
         contactName: "",
         contactPhone: "",
@@ -95,11 +94,85 @@ const SellCar = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSavedIndicator, setShowSavedIndicator] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Smart preview image logic - memoized to prevent infinite re-renders
+  const previewImage = useMemo(() => {
+    // If user has uploaded images, use the first one
+    if (formData.images.length > 0) {
+      const firstImage = formData.images[0];
+
+      // Check if it's a valid File or Blob object
+      if (firstImage instanceof File || firstImage instanceof Blob) {
+        return URL.createObjectURL(firstImage);
+      }
+
+      // If it's an object with URL (from localStorage), use the URL directly
+      if (firstImage && typeof firstImage === "object" && firstImage.url) {
+        return firstImage.url;
+      }
+
+      // If it's a string URL, use it directly
+      if (typeof firstImage === "string") {
+        return firstImage;
+      }
+    }
+
+    // If user has selected a brand, try to get a relevant image
+    if (formData.brand && formData.brand !== "جميع الماركات") {
+      // You can add brand-specific placeholder images here
+      return `https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=300&fit=crop&brand=${encodeURIComponent(
+        formData.brand
+      )}`;
+    }
+
+    // Default placeholder
+    return "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=300&fit=crop";
+  }, [formData.images, formData.brand]);
+
+  // Check authentication status
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        // Redirect to login if not authenticated
+        navigate("/login", {
+          state: {
+            message: "يجب تسجيل الدخول لإضافة إعلان",
+            redirectTo: "/sell-car",
+          },
+        });
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   useEffect(() => {
     setBrands(getCarBrands());
   }, []);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">جاري التحقق من تسجيل الدخول...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render the form if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -183,6 +256,7 @@ const SellCar = () => {
         mileage: "",
         condition: "مستعملة",
         lowMileage: false,
+        negotiable: true,
         description: "",
         contactName: "",
         contactPhone: "",
@@ -239,40 +313,6 @@ const SellCar = () => {
     { number: 3, title: "الوصف والصور" },
     { number: 4, title: "معلومات التواصل" },
   ];
-
-  // Smart preview image logic - memoized to prevent infinite re-renders
-  const previewImage = useMemo(() => {
-    // If user has uploaded images, use the first one
-    if (formData.images.length > 0) {
-      const firstImage = formData.images[0];
-
-      // Check if it's a valid File or Blob object
-      if (firstImage instanceof File || firstImage instanceof Blob) {
-        return URL.createObjectURL(firstImage);
-      }
-
-      // If it's an object with URL (from localStorage), use the URL directly
-      if (firstImage && typeof firstImage === "object" && firstImage.url) {
-        return firstImage.url;
-      }
-
-      // If it's a string URL, use it directly
-      if (typeof firstImage === "string") {
-        return firstImage;
-      }
-    }
-
-    // If user has selected a brand, try to get a relevant image
-    if (formData.brand && formData.brand !== "جميع الماركات") {
-      // You can add brand-specific placeholder images here
-      return `https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=300&fit=crop&brand=${encodeURIComponent(
-        formData.brand
-      )}`;
-    }
-
-    // Default placeholder
-    return "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=300&fit=crop";
-  }, [formData.images, formData.brand]);
 
   return (
     <motion.div
@@ -391,6 +431,7 @@ const SellCar = () => {
                     : "أدخل المسافة",
                   condition: formData.condition || "مستعملة",
                   lowMileage: formData.lowMileage,
+                  negotiable: formData.negotiable,
                   features: formData.features,
                   owners: formData.owners || 1,
                   usage: formData.usage || "personal",
@@ -632,6 +673,26 @@ const SellCar = () => {
                       className="mr-2"
                     />
                     <span className="text-sm text-gray-700">ممشى قليل</span>
+                  </label>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.negotiable}
+                      onChange={(e) =>
+                        setFormData((prev) => {
+                          const newData = {
+                            ...prev,
+                            negotiable: e.target.checked,
+                          };
+                          saveFormDataToStorage(newData, setShowSavedIndicator);
+                          return newData;
+                        })
+                      }
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">قابل للتفاوض</span>
                   </label>
                 </div>
               </div>

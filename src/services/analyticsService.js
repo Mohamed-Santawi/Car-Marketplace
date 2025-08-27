@@ -26,7 +26,7 @@ export const debugCarAdvertisements = async () => {
         userEmail: data.userEmail,
         createdAt: data.createdAt,
         // Show all fields for debugging
-        allFields: data
+        allFields: data,
       });
     });
 
@@ -41,13 +41,24 @@ export const debugCarAdvertisements = async () => {
 export const getApprovedProductsCount = async () => {
   try {
     console.log("=== COUNTING APPROVED PRODUCTS ===");
-    const q = query(
+
+    // Count both "approved" and "approve" status values
+    const q1 = query(
       collection(db, "carAdvertisements"),
       where("status", "==", "approved")
     );
-    const snapshot = await getCountFromServer(q);
-    const count = snapshot.data().count || 0;
-    console.log("Approved products count:", count);
+    const q2 = query(
+      collection(db, "carAdvertisements"),
+      where("status", "==", "approve")
+    );
+
+    const [snapshot1, snapshot2] = await Promise.all([
+      getCountFromServer(q1),
+      getCountFromServer(q2)
+    ]);
+
+    const count = (snapshot1.data().count || 0) + (snapshot2.data().count || 0);
+    console.log("Approved products count (combined):", count);
     return count;
   } catch (error) {
     console.error("Error counting approved products:", error);
@@ -93,17 +104,35 @@ export const getOrdersCount = async () => {
 export const getTotalRevenue = async () => {
   try {
     console.log("=== CALCULATING TOTAL REVENUE ===");
-    const q = query(
+
+    // Query for both "approved" and "approve" status values
+    const q1 = query(
       collection(db, "carAdvertisements"),
       where("status", "==", "approved")
     );
-    const snap = await getDocs(q);
+    const q2 = query(
+      collection(db, "carAdvertisements"),
+      where("status", "==", "approve")
+    );
+
+    const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
     let total = 0;
-    snap.forEach((doc) => {
+
+    // Process "approved" status advertisements
+    snap1.forEach((doc) => {
       const price = Number(doc.data()?.price || 0);
       console.log("Found approved ad with price:", price);
       if (!Number.isNaN(price)) total += price;
     });
+
+    // Process "approve" status advertisements
+    snap2.forEach((doc) => {
+      const price = Number(doc.data()?.price || 0);
+      console.log("Found approve ad with price:", price);
+      if (!Number.isNaN(price)) total += price;
+    });
+
     console.log("Total revenue:", total);
     return total;
   } catch (error) {
@@ -118,17 +147,40 @@ export const getAdCountsByStatus = async () => {
     console.log("=== COUNTING ADS BY STATUS ===");
     const statuses = ["pending", "approved", "rejected"];
     const result = { pending: 0, approved: 0, rejected: 0 };
+
     await Promise.all(
       statuses.map(async (s) => {
-        const q = query(
-          collection(db, "carAdvertisements"),
-          where("status", "==", s)
-        );
-        const snapshot = await getCountFromServer(q);
-        result[s] = snapshot.data().count || 0;
-        console.log(`Status ${s}:`, result[s]);
+        if (s === "approved") {
+          // Count both "approved" and "approve" status values
+          const q1 = query(
+            collection(db, "carAdvertisements"),
+            where("status", "==", "approved")
+          );
+          const q2 = query(
+            collection(db, "carAdvertisements"),
+            where("status", "==", "approve")
+          );
+
+          const [snapshot1, snapshot2] = await Promise.all([
+            getCountFromServer(q1),
+            getCountFromServer(q2),
+          ]);
+
+          result[s] =
+            (snapshot1.data().count || 0) + (snapshot2.data().count || 0);
+          console.log(`Status ${s} (combined):`, result[s]);
+        } else {
+          const q = query(
+            collection(db, "carAdvertisements"),
+            where("status", "==", s)
+          );
+          const snapshot = await getCountFromServer(q);
+          result[s] = snapshot.data().count || 0;
+          console.log(`Status ${s}:`, result[s]);
+        }
       })
     );
+
     console.log("Status counts result:", result);
     return result;
   } catch (e) {

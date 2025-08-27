@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { auth } from "../services/firebase";
 import { isAdmin } from "../services/authService";
 import {
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
   setPersistence,
@@ -14,6 +15,7 @@ import {
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -21,6 +23,15 @@ const Login = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [message, setMessage] = useState("");
+
+  // Check for redirect message
+  useEffect(() => {
+    if (location.state?.message) {
+      setMessage(location.state.message);
+    }
+  }, [location.state]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -40,23 +51,41 @@ const Login = () => {
           ? browserLocalPersistence
           : browserSessionPersistence
       );
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      );
-      const user = userCredential.user;
 
-      // Check if user is admin
-      if (isAdmin(user)) {
-        alert("تم تسجيل دخول المدير بنجاح! مرحباً بك في لوحة التحكم");
-        navigate("/admin/dashboard");
+      if (isRegistering) {
+        // Register new user
+        await createUserWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
+        alert("تم إنشاء الحساب بنجاح!");
       } else {
-        alert("تم تسجيل الدخول بنجاح!");
-        navigate("/");
+        // Login existing user
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
+        const user = userCredential.user;
+
+        // Check if user is admin
+        if (isAdmin(user)) {
+          alert("تم تسجيل دخول المدير بنجاح! مرحباً بك في لوحة التحكم");
+          navigate("/admin/dashboard");
+        } else {
+          alert("تم تسجيل الدخول بنجاح!");
+          // Navigate to the intended page or home
+          navigate(location.state?.redirectTo || "/");
+        }
       }
     } catch (err) {
-      alert("فشل تسجيل الدخول: " + (err?.message || ""));
+      alert(
+        "فشل " +
+          (isRegistering ? "إنشاء الحساب" : "تسجيل الدخول") +
+          ": " +
+          (err?.message || "")
+      );
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +112,7 @@ const Login = () => {
         navigate("/admin/dashboard");
       } else {
         alert("تم تسجيل الدخول عبر Google بنجاح!");
-        navigate("/");
+        navigate(location.state?.redirectTo || "/");
       }
     } catch (err) {
       alert("فشل تسجيل الدخول عبر Google: " + (err?.message || ""));
@@ -110,16 +139,22 @@ const Login = () => {
               <h1 className="text-3xl font-bold text-blue-600">سيارات</h1>
             </Link>
             <h2 className="mt-6 text-3xl font-bold text-gray-900">
-              تسجيل الدخول
+              {isRegistering ? "إنشاء حساب جديد" : "تسجيل الدخول"}
             </h2>
+            {message && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-sm text-blue-800">{message}</p>
+              </div>
+            )}
             <p className="mt-2 text-sm text-gray-600">
-              أو{" "}
-              <Link
-                to="/register"
+              {isRegistering ? "لديك حساب بالفعل؟" : "ليس لديك حساب؟"}{" "}
+              <button
+                type="button"
+                onClick={() => setIsRegistering(!isRegistering)}
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
-                إنشاء حساب جديد
-              </Link>
+                {isRegistering ? "تسجيل الدخول" : "إنشاء حساب جديد"}
+              </button>
             </p>
             <p className="mt-2 text-xs text-gray-500">
               يمكن للمديرين تسجيل الدخول من هنا للوصول إلى لوحة التحكم
@@ -223,8 +258,12 @@ const Login = () => {
                 {isLoading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    جاري تسجيل الدخول...
+                    {isRegistering
+                      ? "جاري إنشاء الحساب..."
+                      : "جاري تسجيل الدخول..."}
                   </div>
+                ) : isRegistering ? (
+                  "إنشاء الحساب"
                 ) : (
                   "تسجيل الدخول"
                 )}
@@ -285,24 +324,6 @@ const Login = () => {
                 <span>تسجيل الدخول عبر Google</span>
               </motion.button>
             </div>
-          </motion.div>
-
-          {/* Additional Info */}
-          <motion.div
-            className="text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <p className="text-sm text-gray-600">
-              ليس لديك حساب؟{" "}
-              <Link
-                to="/register"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                إنشاء حساب جديد
-              </Link>
-            </p>
           </motion.div>
         </motion.form>
       </div>

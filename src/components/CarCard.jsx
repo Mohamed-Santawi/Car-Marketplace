@@ -137,14 +137,12 @@ const CarCard = ({ car }) => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           />
-
           {/* Favorite button */}
           <button className="absolute top-3 right-3 bg-white/80 hover:bg-white text-gray-600 hover:text-red-500 p-2 rounded-full transition-all">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           </button>
-
           {images.length > 1 && (
             <>
               <button
@@ -185,7 +183,6 @@ const CarCard = ({ car }) => {
               </button>
             </>
           )}
-
           {/* Image carousel indicators */}
           {images.length > 1 && (
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1 space-x-reverse">
@@ -202,7 +199,6 @@ const CarCard = ({ car }) => {
               ))}
             </div>
           )}
-
           {/* Price comparison badge */}
           {car.originalPrice && car.originalPrice !== car.price && (
             <motion.div
@@ -214,7 +210,6 @@ const CarCard = ({ car }) => {
               سعر عادل
             </motion.div>
           )}
-
           {car.lowMileage && (
             <motion.div
               className="absolute top-12 left-3 bg-blue-500 text-white px-2 py-1 rounded text-sm font-medium"
@@ -223,6 +218,26 @@ const CarCard = ({ car }) => {
               transition={{ delay: 0.3 }}
             >
               ممشى قليل
+            </motion.div>
+          )}
+          {car.negotiable && (
+            <motion.div
+              className="absolute top-12 right-3 bg-green-500 text-white px-2 py-1 rounded text-sm font-medium"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              قابل للتفاوض
+            </motion.div>
+          )}
+          {!car.negotiable && (
+            <motion.div
+              className="absolute top-12 right-3 bg-gray-500 text-white px-2 py-1 rounded text-sm font-medium"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              غير قابل للتفاوض
             </motion.div>
           )}
         </div>
@@ -257,7 +272,9 @@ const CarCard = ({ car }) => {
             </p>
             <div className="flex items-center gap-1 text-sm text-green-600">
               <span>⚖️</span>
-              <span>سعر عادل</span>
+              <span>
+                {car.negotiable ? "قابل للتفاوض" : "غير قابل للتفاوض"}
+              </span>
             </div>
           </div>
         </div>

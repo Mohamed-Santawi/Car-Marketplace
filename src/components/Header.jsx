@@ -20,94 +20,92 @@ const Header = () => {
     return () => unsubscribe();
   }, []);
 
-  const navItems = [
-    { name: "السيارات المستعملة", path: "/used-cars" },
-    { name: "البحث عن السيارات", path: "/search-cars" },
-    { name: "بيعنا سيارتك", path: "/sell-car" },
-  ];
-
   return (
     <motion.header
-      className="bg-white shadow-sm border-b sticky top-0 z-50"
+      className="bg-white shadow-lg border-b sticky top-0 z-50"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <motion.div
-            className="flex items-center gap-2"
+            className="flex items-center gap-3"
             whileHover={{ scale: 1.05 }}
           >
             <Link to="/" className="flex items-center">
-              <img src={logo} alt="Logo" className="w-20 h-20 object-cover" />
-              <h1 className="text-xl sm:text-2xl font-bold text-blue-600">
+              <img src={logo} alt="Logo" className="w-16 h-16 object-cover" />
+              <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mr-2">
                 سيارات
               </h1>
             </Link>
           </motion.div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex space-x-8">
-            {navItems.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Link
-                  to={item.path}
-                  className="text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  {item.name}
-                </Link>
-              </motion.div>
-            ))}
-            {isAdminUser && (
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: navItems.length * 0.1 }}
-              >
-                <Link
-                  to="/admin/dashboard"
-                  className="text-gray-700 hover:text-blue-600 transition-colors font-semibold"
-                >
-                  لوحة التحكم
-                </Link>
-              </motion.div>
-            )}
-          </nav>
-
-          {/* Desktop Action Buttons */}
-          <div className="hidden lg:flex items-center space-x-4 space-x-reverse">
-            {/* Upgrade Ads Button */}
+          {/* Desktop Action Buttons - All buttons grouped together */}
+          <div className="hidden lg:flex items-center space-x-3 space-x-reverse">
+            {/* Search Cars Button */}
             <motion.button
-              onClick={() => navigate("/paid-advertisements")}
-              className="bg-yellow-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+              onClick={() => navigate("/search-cars")}
+              className="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl cursor-pointer hover:bg-gray-200 transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-lg"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              ترقية الإعلانات
+              البحث عن السيارات
             </motion.button>
 
+            {/* Admin Dashboard Button */}
+            {isAdminUser && (
+              <motion.button
+                onClick={() => navigate("/admin/dashboard")}
+                className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                لوحة التحكم
+              </motion.button>
+            )}
             {/* Add Advertisement Button */}
             <motion.button
-              onClick={() => navigate("/sell-car")}
-              className="bg-green-600 text-white cursor-pointer px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+              onClick={() =>
+                isLoggedIn
+                  ? navigate("/sell-car")
+                  : navigate("/login", {
+                      state: {
+                        message: "يجب تسجيل الدخول لإضافة إعلان",
+                        redirectTo: "/sell-car",
+                      },
+                    })
+              }
+              className="bg-gradient-to-r from-green-500 cursor-pointer to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-lg"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               أضف إعلانك
             </motion.button>
-
+            {/* Upgrade Ads Button */}
+            <motion.button
+              onClick={() =>
+                isLoggedIn
+                  ? navigate("/paid-advertisements")
+                  : navigate("/login", {
+                      state: {
+                        message: "يجب تسجيل الدخول لترقية إعلانك",
+                        redirectTo: "/paid-advertisements",
+                      },
+                    })
+              }
+              className="bg-gradient-to-r from-yellow-400 to-orange-500 cursor-pointer text-white px-6 py-3 rounded-xl hover:from-yellow-500 hover:to-orange-600 transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              ترقية الإعلانات
+            </motion.button>
             {/* Auth Button */}
             {!isLoggedIn ? (
               <motion.button
                 onClick={() => navigate("/login")}
-                className="bg-blue-600 text-white cursor-pointer px-4 mr-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                className="bg-blue-600 text-white px-6 mr-2 py-3 rounded-xl cursor-pointer hover:bg-blue-700 transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-lg"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -116,7 +114,7 @@ const Header = () => {
             ) : (
               <motion.button
                 onClick={() => auth.signOut()}
-                className="bg-gray-700 text-white cursor-pointer px-4 mr-3 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm"
+                className="bg-gray-700 text-white mr-2 px-6 py-3 rounded-xl cursor-pointer hover:bg-gray-800 transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-lg"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -127,43 +125,73 @@ const Header = () => {
 
           {/* Tablet Action Buttons (Medium screens) */}
           <div className="hidden md:flex lg:hidden items-center space-x-2 space-x-reverse">
-            {/* Upgrade Ads Button */}
+            {/* Search Cars Button */}
             <motion.button
-              onClick={() => navigate("/paid-advertisements")}
-              className="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600 transition-colors text-xs"
+              onClick={() => navigate("/search-cars")}
+              className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors text-xs font-semibold"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              ترقية
+              بحث
+            </motion.button>
+
+            {/* Auth Button */}
+            <motion.button
+              onClick={() => navigate("/login")}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition-colors text-xs font-semibold"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              دخول
             </motion.button>
 
             {/* Add Advertisement Button */}
             <motion.button
-              onClick={() => navigate("/add-advertisement")}
-              className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-xs"
+              onClick={() =>
+                isLoggedIn
+                  ? navigate("/sell-car")
+                  : navigate("/login", {
+                      state: {
+                        message: "يجب تسجيل الدخول لإضافة إعلان",
+                        redirectTo: "/sell-car",
+                      },
+                    })
+              }
+              className="bg-green-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700 transition-colors text-xs font-semibold"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               إضافة
             </motion.button>
 
-            {/* Login Button */}
+            {/* Upgrade Ads Button */}
             <motion.button
-              onClick={() => navigate("/login")}
-              className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-xs"
+              onClick={() =>
+                isLoggedIn
+                  ? navigate("/paid-advertisements")
+                  : navigate("/login", {
+                      state: {
+                        message: "يجب تسجيل الدخول لترقية إعلانك",
+                        redirectTo: "/paid-advertisements",
+                      },
+                    })
+              }
+              className="bg-yellow-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-yellow-600 transition-colors text-xs font-semibold"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              دخول
+              ترقية
             </motion.button>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center">
-            <button
+            <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-700 hover:text-blue-600 focus:outline-none"
+              className="text-gray-700 hover:text-blue-600 cursor-pointer focus:outline-none p-2 rounded-lg hover:bg-gray-100"
               aria-label="Toggle Menu"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
               {isMenuOpen ? (
                 // X icon when menu is open
@@ -196,7 +224,7 @@ const Header = () => {
                   />
                 </svg>
               )}
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -210,62 +238,87 @@ const Header = () => {
             transition={{ duration: 0.3 }}
           >
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
-              {/* Navigation Items */}
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className="block px-3 py-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md text-base"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-
-              {isAdminUser && (
-                <Link
-                  to="/admin/dashboard"
-                  className="block px-3 py-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md text-base font-semibold"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  لوحة التحكم
-                </Link>
-              )}
-
-              {/* Divider */}
-              <div className="border-t border-gray-200 my-3"></div>
-
               {/* Action Buttons for Mobile */}
               <div className="space-y-3">
-                <button
+                <motion.button
                   onClick={() => {
-                    navigate("/paid-advertisements");
+                    navigate("/search-cars");
                     setIsMenuOpen(false);
                   }}
-                  className="w-full text-right px-4 py-3 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors text-base font-medium shadow-sm"
+                  className="w-full text-right px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-base font-medium shadow-sm"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  ترقية الإعلانات
-                </button>
+                  البحث عن السيارات
+                </motion.button>
 
-                <button
-                  onClick={() => {
-                    navigate("/add-advertisement");
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-right px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-base font-medium shadow-sm"
-                >
-                  أضف إعلانك
-                </button>
+                {isAdminUser && (
+                  <motion.button
+                    onClick={() => {
+                      navigate("/admin/dashboard");
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full text-right px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-base font-medium shadow-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    لوحة التحكم
+                  </motion.button>
+                )}
 
-                <button
+                <motion.button
                   onClick={() => {
                     navigate("/login");
                     setIsMenuOpen(false);
                   }}
-                  className="w-full text-right px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-base font-medium shadow-sm"
+                  className="w-full text-right px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-base font-medium shadow-sm"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   تسجيل الدخول
-                </button>
+                </motion.button>
+
+                <motion.button
+                  onClick={() => {
+                    if (isLoggedIn) {
+                      navigate("/sell-car");
+                    } else {
+                      navigate("/login", {
+                        state: {
+                          message: "يجب تسجيل الدخول لإضافة إعلان",
+                          redirectTo: "/sell-car",
+                        },
+                      });
+                    }
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-right px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-base font-medium shadow-sm"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  أضف إعلانك
+                </motion.button>
+
+                <motion.button
+                  onClick={() => {
+                    if (isLoggedIn) {
+                      navigate("/paid-advertisements");
+                    } else {
+                      navigate("/login", {
+                        state: {
+                          message: "يجب تسجيل الدخول لترقية إعلانك",
+                          redirectTo: "/paid-advertisements",
+                        },
+                      });
+                    }
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-right px-4 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-base font-medium shadow-sm"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  ترقية الإعلانات
+                </motion.button>
               </div>
             </div>
           </motion.div>

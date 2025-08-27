@@ -394,20 +394,34 @@ export const getAllCarAdvertisements = async () => {
 export const getApprovedCarAdvertisements = async () => {
   try {
     console.log("Fetching approved car advertisements...");
-    const q = query(
+
+    // Query for both "approved" and "approve" status values
+    const q1 = query(
       collection(db, COLLECTION_NAME),
       where("status", "==", "approved"),
       orderBy("createdAt", "desc")
     );
 
-    const querySnapshot = await getDocs(q);
-    console.log("Query snapshot size:", querySnapshot.size);
+    const q2 = query(
+      collection(db, COLLECTION_NAME),
+      where("status", "==", "approve"),
+      orderBy("createdAt", "desc")
+    );
+
+    const [querySnapshot1, querySnapshot2] = await Promise.all([
+      getDocs(q1),
+      getDocs(q2)
+    ]);
+
+    console.log("Query snapshot 1 size (approved):", querySnapshot1.size);
+    console.log("Query snapshot 2 size (approve):", querySnapshot2.size);
 
     const advertisements = [];
 
-    querySnapshot.forEach((doc) => {
+    // Process "approved" status advertisements
+    querySnapshot1.forEach((doc) => {
       const data = doc.data();
-      console.log("Advertisement data:", {
+      console.log("Advertisement data (approved):", {
         id: doc.id,
         status: data.status,
         isApproved: data.isApproved,
@@ -418,7 +432,21 @@ export const getApprovedCarAdvertisements = async () => {
       });
     });
 
-    console.log("Approved advertisements found:", advertisements.length);
+    // Process "approve" status advertisements
+    querySnapshot2.forEach((doc) => {
+      const data = doc.data();
+      console.log("Advertisement data (approve):", {
+        id: doc.id,
+        status: data.status,
+        isApproved: data.isApproved,
+      });
+      advertisements.push({
+        id: doc.id,
+        ...data,
+      });
+    });
+
+    console.log("Total approved advertisements found:", advertisements.length);
     return advertisements;
   } catch (error) {
     console.error("Error getting approved car advertisements:", error);

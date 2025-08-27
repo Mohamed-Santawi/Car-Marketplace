@@ -43,7 +43,7 @@ const SellPreviewCard = ({ car }) => {
     if (img instanceof Blob) return objectUrls[active] || "";
 
     // Handle local blob URLs (fallback from CORS issues)
-    if (img && typeof img === 'object' && img.isLocal && img.url) {
+    if (img && typeof img === "object" && img.isLocal && img.url) {
       return img.url;
     }
 
@@ -132,7 +132,9 @@ const SellPreviewCard = ({ car }) => {
               </div>
             )}
             <div className="mt-1 text-xs text-emerald-700 bg-emerald-50 inline-flex items-center gap-1 px-2 py-1 rounded-full">
-              <span>سعر عادل</span>
+              <span>
+                {car?.negotiable ? "قابل للتفاوض" : "غير قابل للتفاوض"}
+              </span>
             </div>
           </div>
         </div>

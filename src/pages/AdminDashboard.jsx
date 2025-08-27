@@ -25,7 +25,8 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAd, setSelectedAd] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [actionType, setActionType] = useState(""); // 'approve', 'reject', 'delete', 'edit'
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [actionType, setActionType] = useState(""); // 'approve', 'reject', 'delete', 'edit', 'preview'
   const [adminNotes, setAdminNotes] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [filter, setFilter] = useState("all"); // all, pending, approved, rejected
@@ -83,6 +84,18 @@ const AdminDashboard = () => {
         getTotalFavorites(),
         getBrandsDistribution(),
       ]);
+
+      console.log("Analytics data loaded:", {
+        products,
+        orders,
+        customers,
+        revenue,
+        statusCounts,
+        views,
+        favs,
+        brands,
+      });
+
       setStats({
         products,
         orders,
@@ -122,6 +135,12 @@ const AdminDashboard = () => {
     setSelectedAd(ad);
     setActionType(type);
     setAdminNotes("");
+
+    if (type === "preview") {
+      setShowPreviewModal(true);
+      return;
+    }
+
     if (type === "edit") {
       setEditForm({
         price: ad.price || "",
@@ -166,14 +185,33 @@ const AdminDashboard = () => {
         console.log("Advertisement status updated successfully");
       }
 
-      // Reload data
-      console.log("Reloading advertisements and stats...");
-      await Promise.all([loadAdvertisements(), loadStats()]);
-
+      // Close modal first
       setShowModal(false);
       setSelectedAd(null);
       setAdminNotes("");
       setEditForm(null);
+
+      // Show success message
+      const actionText =
+        actionType === "approve"
+          ? "اعتماد"
+          : actionType === "reject"
+          ? "رفض"
+          : actionType === "delete"
+          ? "حذف"
+          : "تحديث";
+      alert(`تم ${actionText} الإعلان بنجاح`);
+
+      // Reload data with longer delay to ensure Firestore updates are propagated
+      console.log("Reloading advertisements and stats...");
+      setTimeout(async () => {
+        try {
+          await Promise.all([loadAdvertisements(), loadStats()]);
+          console.log("Data reloaded successfully");
+        } catch (error) {
+          console.error("Error reloading data:", error);
+        }
+      }, 2000);
 
       console.log("Action completed successfully");
     } catch (error) {
@@ -194,13 +232,18 @@ const AdminDashboard = () => {
   };
 
   const getStatusBadge = (status) => {
+    // Normalize status values to handle inconsistencies
+    let normalizedStatus = status;
+    if (status === "approve") normalizedStatus = "approved";
+    if (status === "في الانتظار") normalizedStatus = "pending";
+
     const statusConfig = {
       pending: { color: "bg-yellow-100 text-yellow-800", text: "في الانتظار" },
       approved: { color: "bg-green-100 text-green-800", text: "معتمد" },
       rejected: { color: "bg-red-100 text-red-800", text: "مرفوض" },
     };
 
-    const config = statusConfig[status] || statusConfig.pending;
+    const config = statusConfig[normalizedStatus] || statusConfig.pending;
     return (
       <span
         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}
@@ -211,8 +254,53 @@ const AdminDashboard = () => {
   };
 
   const getFilteredAdvertisements = () => {
-    if (filter === "all") return advertisements;
-    return advertisements.filter((ad) => ad.status === filter);
+    console.log("=== FILTERING ADVERTISEMENTS DEBUG ===");
+    console.log("Current filter:", filter);
+    console.log("Total advertisements:", advertisements.length);
+
+    // Debug: Show all advertisement statuses
+    console.log("All advertisement statuses:");
+    advertisements.forEach((ad, index) => {
+      console.log(`Ad ${index + 1}:`, {
+        id: ad.id,
+        brand: ad.brand,
+        model: ad.model,
+        status: ad.status,
+        statusType: typeof ad.status,
+        statusLength: ad.status ? ad.status.length : 0,
+        createdAt: ad.createdAt,
+        // Show all fields to identify the issue
+        allFields: ad,
+      });
+    });
+
+    if (filter === "all") {
+      console.log("Showing all advertisements");
+      return advertisements;
+    }
+
+    // Check for different possible status values and normalize them
+    const matchingAds = advertisements.filter((ad) => {
+      let adStatus = ad.status;
+
+      // Normalize status values
+      if (adStatus === "approve") adStatus = "approved";
+      if (adStatus === "في الانتظار") adStatus = "pending";
+
+      const matches = adStatus === filter;
+      console.log(
+        `Ad ${ad.id}: original status="${ad.status}", normalized="${adStatus}", filter="${filter}", matches: ${matches}`
+      );
+      return matches;
+    });
+
+    console.log("Matching advertisements count:", matchingAds.length);
+    console.log(
+      "Matching advertisements:",
+      matchingAds.map((ad) => ({ id: ad.id, status: ad.status }))
+    );
+
+    return matchingAds;
   };
 
   const formatDate = (timestamp) => {
@@ -223,33 +311,11 @@ const AdminDashboard = () => {
 
   const filteredAds = getFilteredAdvertisements();
 
-  // Debug function to manually approve the first advertisement
-  const debugApproveFirstAd = async () => {
-    try {
-      if (advertisements.length > 0) {
-        const firstAd = advertisements[0];
-        console.log("Attempting to approve advertisement:", firstAd.id);
-        await updateCarAdvertisementStatus(
-          firstAd.id,
-          "approved",
-          "Debug approval"
-        );
-        console.log("Advertisement approved successfully!");
-        await loadAdvertisements();
-        await loadStats();
-      } else {
-        console.log("No advertisements to approve");
-      }
-    } catch (error) {
-      console.error("Error approving advertisement:", error);
-    }
-  };
-
-  // Function to manually apply paid package to an advertisement
-  const applyPaidPackageToAd = async (adId, packageType = "basic") => {
+  // Function to move advertisement to paid section
+  const moveToPaidSection = async (adId, packageType = "basic") => {
     try {
       console.log(
-        "Applying paid package to advertisement:",
+        "Moving advertisement to paid section:",
         adId,
         "Package:",
         packageType
@@ -316,16 +382,18 @@ const AdminDashboard = () => {
       };
 
       await updateDoc(adRef, updateData);
-      console.log("Paid package applied successfully!");
+      console.log("Advertisement moved to paid section successfully!");
 
       // Reload data
       await loadAdvertisements();
       await loadStats();
 
-      alert(`تم تطبيق ${packageName} على الإعلان بنجاح!`);
+      alert(
+        `تم نقل الإعلان إلى قسم الإعلانات المدفوعة بنجاح! (${packageName})`
+      );
     } catch (error) {
-      console.error("Error applying paid package:", error);
-      alert("فشل في تطبيق الباقة: " + error.message);
+      console.error("Error moving advertisement to paid section:", error);
+      alert("فشل في نقل الإعلان: " + error.message);
     }
   };
 
@@ -380,7 +448,7 @@ const AdminDashboard = () => {
               label: "إجمالي الإيرادات",
               value: `${stats.revenue.toLocaleString("ar-SA")} ريال`,
             },
-          ].map((card, idx) => (
+          ].map((card) => (
             <div
               key={card.label}
               className="bg-white rounded-lg shadow p-6 flex items-center gap-4"
@@ -403,7 +471,7 @@ const AdminDashboard = () => {
             { icon: "❤️", label: "الإعجابات", value: stats.favorites },
             { icon: "⏳", label: "قيد الانتظار", value: stats.pending },
             { icon: "✅", label: "المعتمدة", value: stats.approved },
-          ].map((card, idx) => (
+          ].map((card) => (
             <div
               key={card.label}
               className="bg-white rounded-lg shadow p-6 flex items-center gap-4"
@@ -443,7 +511,7 @@ const AdminDashboard = () => {
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 items-center">
             <button
               onClick={() => setFilter("all")}
               className={`px-4 py-2 rounded-lg transition-colors ${
@@ -524,8 +592,8 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredAds.map((ad, index) => (
-                    <div key={ad.id} className="hover:bg-gray-50">
+                  {filteredAds.map((ad) => (
+                    <tr key={ad.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-12 w-12">
@@ -599,37 +667,39 @@ const AdminDashboard = () => {
                               </button>
                             </>
                           )}
-                          {ad.status === "approved" && !ad.isPaid && (
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() =>
-                                  applyPaidPackageToAd(ad.id, "basic")
-                                }
-                                className="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-2 py-1 rounded-md transition-colors text-xs"
-                                title="تطبيق الباقة الأساسية"
-                              >
-                                أساسية
-                              </button>
-                              <button
-                                onClick={() =>
-                                  applyPaidPackageToAd(ad.id, "premium")
-                                }
-                                className="text-orange-600 hover:text-orange-900 bg-orange-100 hover:bg-orange-200 px-2 py-1 rounded-md transition-colors text-xs"
-                                title="تطبيق الباقة المميزة"
-                              >
-                                مميزة
-                              </button>
-                              <button
-                                onClick={() =>
-                                  applyPaidPackageToAd(ad.id, "vip")
-                                }
-                                className="text-purple-600 hover:text-purple-900 bg-purple-100 hover:bg-purple-200 px-2 py-1 rounded-md transition-colors text-xs"
-                                title="تطبيق الباقة VIP"
-                              >
-                                VIP
-                              </button>
-                            </div>
-                          )}
+                          {(ad.status === "approved" ||
+                            ad.status === "approve") &&
+                            !ad.isPaid && (
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() =>
+                                    moveToPaidSection(ad.id, "basic")
+                                  }
+                                  className="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-2 py-1 rounded-md transition-colors text-xs"
+                                  title="نقل إلى الإعلانات المدفوعة - الباقة الأساسية"
+                                >
+                                  أساسية
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    moveToPaidSection(ad.id, "premium")
+                                  }
+                                  className="text-orange-600 hover:text-orange-900 bg-orange-100 hover:bg-orange-200 px-2 py-1 rounded-md transition-colors text-xs"
+                                  title="نقل إلى الإعلانات المدفوعة - الباقة المميزة"
+                                >
+                                  مميزة
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    moveToPaidSection(ad.id, "vip")
+                                  }
+                                  className="text-purple-600 hover:text-purple-900 bg-purple-100 hover:bg-purple-200 px-2 py-1 rounded-md transition-colors text-xs"
+                                  title="نقل إلى الإعلانات المدفوعة - الباقة VIP"
+                                >
+                                  VIP
+                                </button>
+                              </div>
+                            )}
                           {ad.isPaid && (
                             <span className="text-green-600 bg-green-100 px-2 py-1 rounded-md text-xs">
                               {ad.paidPackageName || "مدفوع"}
@@ -647,9 +717,15 @@ const AdminDashboard = () => {
                           >
                             حذف
                           </button>
+                          <button
+                            onClick={() => handleAction(ad, "preview")}
+                            className="text-purple-600 hover:text-purple-900 bg-purple-100 hover:bg-purple-200 px-3 py-1 rounded-md transition-colors"
+                          >
+                            عرض
+                          </button>
                         </div>
                       </td>
-                    </div>
+                    </tr>
                   ))}
                 </tbody>
               </table>
@@ -738,6 +814,344 @@ const AdminDashboard = () => {
                   {isProcessing ? "جاري التنفيذ..." : "تأكيد"}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {showPreviewModal && selectedAd && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">
+                تفاصيل الإعلان - {selectedAd.year} {selectedAd.brand}{" "}
+                {selectedAd.model}
+              </h3>
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="text-gray-600 hover:text-gray-900 text-xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Images Section */}
+              <div className="lg:col-span-1">
+                <h4 className="text-md font-semibold text-gray-900 mb-3">
+                  صور السيارة
+                </h4>
+                <div className="space-y-3">
+                  {selectedAd.images && selectedAd.images.length > 0 ? (
+                    selectedAd.images.map((img, index) => (
+                      <div
+                        key={index}
+                        className="border rounded-lg overflow-hidden"
+                      >
+                        <img
+                          src={img.url || img}
+                          alt={`Car ${index + 1}`}
+                          className="w-full h-48 object-cover"
+                          onError={(e) => {
+                            e.target.src =
+                              "https://via.placeholder.com/400x300?text=صورة+غير+متوفرة";
+                          }}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="border rounded-lg p-8 text-center">
+                      <p className="text-sm text-gray-500">
+                        لا توجد صور متوفرة
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Details Section */}
+              <div className="lg:col-span-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Basic Car Details */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-md font-semibold text-gray-900 mb-3">
+                      تفاصيل السيارة
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">السنة:</span>
+                        <span className="font-medium">
+                          {selectedAd.year || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الماركة:</span>
+                        <span className="font-medium">
+                          {selectedAd.brand || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الموديل:</span>
+                        <span className="font-medium">
+                          {selectedAd.model || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الفئة/الطراز:</span>
+                        <span className="font-medium">
+                          {selectedAd.trim || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الممشى:</span>
+                        <span className="font-medium">
+                          {selectedAd.mileage
+                            ? `${selectedAd.mileage} كم`
+                            : "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الحالة:</span>
+                        <span className="font-medium">
+                          {selectedAd.condition || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">نوع الهيكل:</span>
+                        <span className="font-medium">
+                          {selectedAd.bodyType || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">نوع الوقود:</span>
+                        <span className="font-medium">
+                          {selectedAd.fuelType || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">ناقل الحركة:</span>
+                        <span className="font-medium">
+                          {selectedAd.transmission || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">اللون:</span>
+                        <span className="font-medium">
+                          {selectedAd.color || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">المحرك:</span>
+                        <span className="font-medium">
+                          {selectedAd.engine || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">عدد الحوادث:</span>
+                        <span className="font-medium">
+                          {selectedAd.accidents || 0}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">عدد المالكين:</span>
+                        <span className="font-medium">
+                          {selectedAd.owners || 1}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">نوع الاستخدام:</span>
+                        <span className="font-medium">
+                          {selectedAd.usage === "personal"
+                            ? "شخصي"
+                            : selectedAd.usage === "commercial"
+                            ? "تجاري"
+                            : selectedAd.usage === "rental"
+                            ? "تأجير"
+                            : "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">قابل للتفاوض:</span>
+                        <span className="font-medium">
+                          {selectedAd.negotiable ? "نعم" : "لا"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pricing & Status */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-md font-semibold text-gray-900 mb-3">
+                      السعر والحالة
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">السعر الحالي:</span>
+                        <span className="font-bold text-lg text-green-600">
+                          {selectedAd.price
+                            ? `${selectedAd.price} ريال`
+                            : "غير محدد"}
+                        </span>
+                      </div>
+                      {selectedAd.originalPrice &&
+                        selectedAd.originalPrice !== selectedAd.price && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">السعر الأصلي:</span>
+                            <span className="font-medium line-through text-gray-500">
+                              {selectedAd.originalPrice} ريال
+                            </span>
+                          </div>
+                        )}
+                      {selectedAd.discount && selectedAd.discount !== "0" && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">الخصم:</span>
+                          <span className="font-medium text-red-600">
+                            {selectedAd.discount} ريال
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">حالة الإعلان:</span>
+                        <span>{getStatusBadge(selectedAd.status)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">تاريخ الإنشاء:</span>
+                        <span className="font-medium">
+                          {formatDate(selectedAd.createdAt)}
+                        </span>
+                      </div>
+                      {selectedAd.updatedAt && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">آخر تحديث:</span>
+                          <span className="font-medium">
+                            {formatDate(selectedAd.updatedAt)}
+                          </span>
+                        </div>
+                      )}
+                      {selectedAd.isPaid && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              الباقة المدفوعة:
+                            </span>
+                            <span className="font-medium text-purple-600">
+                              {selectedAd.paidPackageName || "مدفوع"}
+                            </span>
+                          </div>
+                          {selectedAd.paidPackageExpiration && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">
+                                تاريخ انتهاء الباقة:
+                              </span>
+                              <span className="font-medium">
+                                {formatDate(selectedAd.paidPackageExpiration)}
+                              </span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Contact Information */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-md font-semibold text-gray-900 mb-3">
+                      بيانات المُعلن
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الاسم:</span>
+                        <span className="font-medium">
+                          {selectedAd.contactName || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">رقم الجوال:</span>
+                        <span className="font-medium">
+                          {selectedAd.contactPhone || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">
+                          البريد الإلكتروني:
+                        </span>
+                        <span className="font-medium">
+                          {selectedAd.contactEmail || "غير محدد"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الموقع:</span>
+                        <span className="font-medium">
+                          {selectedAd.location || "غير محدد"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Features & Description */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-md font-semibold text-gray-900 mb-3">
+                      المميزات والوصف
+                    </h4>
+                    <div className="space-y-3">
+                      {selectedAd.features &&
+                        selectedAd.features.length > 0 && (
+                          <div>
+                            <span className="text-gray-600 text-sm">
+                              المميزات المتوفرة:
+                            </span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {selectedAd.features.map((feature, index) => (
+                                <span
+                                  key={index}
+                                  className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
+                                >
+                                  {feature}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      {selectedAd.paidFeatures &&
+                        selectedAd.paidFeatures.length > 0 && (
+                          <div>
+                            <span className="text-gray-600 text-sm">
+                              مميزات الباقة المدفوعة:
+                            </span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {selectedAd.paidFeatures.map((feature, index) => (
+                                <span
+                                  key={index}
+                                  className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full"
+                                >
+                                  {feature}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      {selectedAd.description && (
+                        <div>
+                          <span className="text-gray-600 text-sm">الوصف:</span>
+                          <p className="text-sm mt-1 bg-white p-2 rounded border">
+                            {selectedAd.description}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6 pt-4 border-t">
+              <button
+                onClick={() => setShowPreviewModal(false)}
+                className="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+              >
+                إغلاق
+              </button>
             </div>
           </div>
         </div>

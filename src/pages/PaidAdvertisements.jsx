@@ -1,11 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getActivePackages, clearAndReinitializePackages } from "../services/packageService";
+import {
+  getActivePackages,
+  clearAndReinitializePackages,
+} from "../services/packageService";
+import { auth } from "../services/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 const PaidAdvertisements = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Check authentication status
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        // Redirect to login if not authenticated
+        navigate("/login", {
+          state: {
+            message: "يجب تسجيل الدخول لترقية إعلانك",
+            redirectTo: "/paid-advertisements",
+          },
+        });
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   useEffect(() => {
     // Scroll to top when component mounts
@@ -21,8 +49,8 @@ const PaidAdvertisements = () => {
       console.log("Packages count:", packagesData.length);
 
       // Remove duplicates based on ID
-      const uniquePackages = packagesData.filter((pkg, index, self) =>
-        index === self.findIndex(p => p.id === pkg.id)
+      const uniquePackages = packagesData.filter(
+        (pkg, index, self) => index === self.findIndex((p) => p.id === pkg.id)
       );
 
       console.log("Unique packages:", uniquePackages);
@@ -32,9 +60,23 @@ const PaidAdvertisements = () => {
       const limitedPackages = uniquePackages
         .sort((a, b) => {
           // Sort: Basic, Premium, VIP
-          const order = { "أساسي": 1, "مميز": 2, "VIP": 3 };
-          const aOrder = order[a.name.includes("أساسي") ? "أساسي" : a.name.includes("مميز") ? "مميز" : "VIP"] || 4;
-          const bOrder = order[b.name.includes("أساسي") ? "أساسي" : b.name.includes("مميز") ? "مميز" : "VIP"] || 4;
+          const order = { أساسي: 1, مميز: 2, VIP: 3 };
+          const aOrder =
+            order[
+              a.name.includes("أساسي")
+                ? "أساسي"
+                : a.name.includes("مميز")
+                ? "مميز"
+                : "VIP"
+            ] || 4;
+          const bOrder =
+            order[
+              b.name.includes("أساسي")
+                ? "أساسي"
+                : b.name.includes("مميز")
+                ? "مميز"
+                : "VIP"
+            ] || 4;
           return aOrder - bOrder;
         })
         .slice(0, 3);
@@ -65,6 +107,23 @@ const PaidAdvertisements = () => {
       alert("فشل في إعادة تهيئة الباقات: " + error.message);
     }
   };
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري التحقق من تسجيل الدخول...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render the page if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   if (loading) {
     return (

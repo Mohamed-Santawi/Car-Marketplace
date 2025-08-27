@@ -213,7 +213,7 @@ const PaidAdCard = ({ ad }) => {
               animate={{ scale: 1 }}
               transition={{ delay: 0.2 }}
             >
-              سعر عادل
+              {ad.negotiable ? "قابل للتفاوض" : "غير قابل للتفاوض"}
             </motion.div>
           )}
 
@@ -259,7 +259,7 @@ const PaidAdCard = ({ ad }) => {
             </p>
             <div className="flex items-center gap-1 text-sm text-green-600">
               <span>⚖️</span>
-              <span>سعر عادل</span>
+              <span>{ad.negotiable ? "قابل للتفاوض" : "غير قابل للتفاوض"}</span>
             </div>
           </div>
         </div>

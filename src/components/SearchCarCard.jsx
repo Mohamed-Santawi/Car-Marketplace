@@ -24,7 +24,7 @@ const SearchCarCard = ({ car, viewMode }) => {
       case "good":
         return "سعر جيد";
       case "fair":
-        return "سعر عادل";
+        return car.negotiable ? "قابل للتفاوض" : "غير قابل للتفاوض";
       default:
         return "سعر عادي";
     }
