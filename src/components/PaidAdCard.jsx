@@ -141,7 +141,7 @@ const PaidAdCard = ({ ad }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
           {/* Favorite button */}
-          <button className="absolute top-3 left-3 bg-white/80 hover:bg-white text-gray-600 hover:text-red-500 p-2 rounded-full transition-all z-10">
+          <button className="absolute top-1 cursor-pointer left-3 bg-white/80 hover:bg-white text-gray-600 hover:text-red-500 p-2 rounded-full transition-all z-10">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
@@ -151,7 +151,7 @@ const PaidAdCard = ({ ad }) => {
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-all z-10"
+                className="absolute left-2 cursor-pointer top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-all z-10"
               >
                 <svg
                   className="w-4 h-4"
@@ -169,7 +169,7 @@ const PaidAdCard = ({ ad }) => {
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-all z-10"
+                className="absolute right-2 cursor-pointer top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-all z-10"
               >
                 <svg
                   className="w-4 h-4"
@@ -195,7 +195,7 @@ const PaidAdCard = ({ ad }) => {
                 <button
                   key={index}
                   onClick={() => goToImage(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
+                  className={`w-2 h-2 rounded-full cursor-pointer transition-all ${
                     index === currentImageIndex
                       ? "bg-white"
                       : "bg-white/60 hover:bg-white"
@@ -335,7 +335,7 @@ const PaidAdCard = ({ ad }) => {
         {/* Action button */}
         <div className="flex items-center justify-between">
           <motion.button
-            className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all flex-1"
+            className="bg-gradient-to-r cursor-pointer from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all flex-1"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -343,9 +343,7 @@ const PaidAdCard = ({ ad }) => {
             <span className="mr-2">↗️</span>
           </motion.button>
 
-          <button className="bg-gray-100 text-gray-600 p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <span className="text-lg">ℹ️</span>
-          </button>
+      
         </div>
       </div>
     </motion.div>
