@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const CarCard = ({ car }) => {
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [objectUrl, setObjectUrl] = useState(null);
 
@@ -316,6 +318,7 @@ const CarCard = ({ car }) => {
         {/* Action button */}
         <div className="flex items-center justify-between">
           <motion.button
+            onClick={() => navigate(`/advertisement/${car.id}`)}
             className="bg-blue-600 cursor-pointer text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex-1"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}

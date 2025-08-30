@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const PaidAdCard = ({ ad }) => {
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [objectUrl, setObjectUrl] = useState(null);
 
@@ -335,6 +337,7 @@ const PaidAdCard = ({ ad }) => {
         {/* Action button */}
         <div className="flex items-center justify-between">
           <motion.button
+            onClick={() => navigate(`/advertisement/${ad.id}`)}
             className="bg-gradient-to-r cursor-pointer from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all flex-1"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -342,8 +345,6 @@ const PaidAdCard = ({ ad }) => {
             تواصل مع البائع
             <span className="mr-2">↗️</span>
           </motion.button>
-
-      
         </div>
       </div>
     </motion.div>

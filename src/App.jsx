@@ -18,6 +18,7 @@ import TestSetup from "./pages/TestSetup";
 import PaidAdvertisements from "./pages/PaidAdvertisements";
 import Payment from "./pages/Payment";
 import Financing from "./pages/Financing";
+import AdvertisementDetails from "./pages/AdvertisementDetails";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="add-advertisement" element={<AddAdvertisement />} />
           <Route path="login" element={<Login />} />
           <Route path="paid-advertisements" element={<PaidAdvertisements />} />
+          <Route path="advertisement/:id" element={<AdvertisementDetails />} />
           <Route path="payment/:packageId" element={<Payment />} />
           <Route path="financing" element={<Financing />} />
         </Route>
