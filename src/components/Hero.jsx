@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import HeroImage from "../assets/Hero1.png";
+import heroLogo from "../assets/logo.jpg";
 
 // Import the same brand data and helper functions from TopBrands
 const imageUrlMap = import.meta.glob("../assets/img/*.{png,jpg,jpeg,svg}", {
@@ -82,27 +83,27 @@ const Hero = ({ onSelectBrand }) => {
     <>
       {/* Desktop Hero Section */}
       <motion.section
-        className="relative overflow-hidden hidden md:block bg-gradient-to-r from-gray-900 to-gray-800 h-[78vh] mb-4"
+        className="relative overflow-hidden hidden md:block bg-gradient-to-r from-gray-900 to-gray-800 h-[75vh] mb-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 2.5, ease: "easeOut" }}
       >
         <motion.div
-          className="w-full h-[70vh] flex items-center justify-center relative"
+          className="w-full h-[75vh] flex items-center justify-center relative"
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 3, ease: "easeOut", delay: 0.6 }}
         >
           {/* Three-column layout for large screens */}
-          <div className="w-full max-w-8xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-5 gap-5 items-center h-full">
+          <div className="w-full max-w-8xl mx-auto px-3 grid grid-cols-1 lg:grid-cols-5 gap-5 items-center h-full">
             {/* Left Column - Car Brands */}
             <motion.div
-              className="hidden lg:flex flex-col"
+              className="hidden lg:flex flex-col -mt-2"
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
             >
-              <div className="grid grid-cols-3 gap-2 mt-2">
+              <div className="grid grid-cols-3 gap-2">
                 {brandsWithImages
                   .slice(0, Math.ceil(brandsWithImages.length / 2))
                   .map((brand, idx) => (
@@ -136,27 +137,26 @@ const Hero = ({ onSelectBrand }) => {
             </motion.div>
 
             {/* Center Column - Hero Image */}
+
             <motion.div
               className="flex justify-center items-center col-span-3 h-full"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.4 }}
             >
-              <div className="relative w-full h-full flex items-center justify-center">
+              <div className="relative w-full h-full">
                 <img
-                  src={HeroImage}
+                  src={heroLogo}
                   alt="Car Marketplace Hero"
                   className="w-full h-full object-cover"
-                  style={{ maxHeight: "100%", maxWidth: "100%" }}
                 />
                 {/* Black overlay (same size as image) */}
                 <div className="absolute inset-0 bg-black/30" />
               </div>
             </motion.div>
-
             {/* Right Column - Car Brands */}
             <motion.div
-              className="hidden lg:flex flex-col"
+              className="hidden lg:flex flex-col -mt-3"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
